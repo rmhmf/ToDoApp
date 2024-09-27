@@ -1,15 +1,16 @@
 import React from "react";
-import Header from "./component/Header";
-import Content from "./component/Content";
-import Footer from "./component/Footer";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import MainPage from "./MainPage";
+import LoginPage from "./LoginPage";
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-red-300">
-      <Header />
-      <Content />
-      <Footer />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+    </Router>
   );
 }
 
