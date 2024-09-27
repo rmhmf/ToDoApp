@@ -1,11 +1,8 @@
 import React from "react";
+import Header from "./component/Header";
 
 function App() {
-  return (
-    <div className="text-white bg-blue-500 border-blue-600 border-b p-4 rounded-sm">
-      <span className="font-bold text-3xl ml-4">Welcome</span>
-    </div>
-  );
+  return <Header />;
 }
 
 export default App;
