@@ -8,7 +8,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage type="login" />} />
+        <Route path="/register" element={<LoginPage type="register" />} />
       </Routes>
     </Router>
   );
