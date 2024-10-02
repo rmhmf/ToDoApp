@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import BasicDatePicker from "../BasicDatePicker";
@@ -6,11 +6,20 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const LoginForm = (props) => {
   const { type } = props;
 
   const isLogin = type === "login";
+
+  const [data, setData] = useState({
+    email: "",
+    password: "",
+    check: true,
+    confirmPass: "",
+    birthDay: "",
+  });
 
   const GoogleIcon = () => {
     return (
@@ -22,6 +31,32 @@ const LoginForm = (props) => {
       />
     );
   };
+
+  function changed(event) {
+    const { name, value } = event.target;
+    setData({
+      ...data,
+      [name]: value,
+    });
+  }
+
+  function check(event) {
+    setData({
+      ...data,
+      check: event.target.checked,
+    });
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    if (!isLogin) {
+      const result = await axios.post("http://localhost:3001/register", {
+        email: data.email,
+        password: data.password,
+        birthDay: data.birthDay,
+      });
+    }
+  }
 
   return (
     <div className="shadow-md border-gray-200 bg-white p-4 space-y-2">
@@ -77,11 +112,17 @@ const LoginForm = (props) => {
         <hr className="flex-1 border-black" />
       </div>
 
-      <div className="flex flex-col justify-center items-left space-y-2">
+      <form
+        onSubmit={submit}
+        className="flex flex-col justify-center items-left space-y-2"
+      >
         <TextField
           sx={{ width: "16rem" }}
           required
           id="email"
+          name="email"
+          value={data.email}
+          onChange={changed}
           label="Email"
           variant="outlined"
         />
@@ -89,6 +130,9 @@ const LoginForm = (props) => {
           sx={{ width: "16rem" }}
           required
           id="pass"
+          name="password"
+          value={data.password}
+          onChange={changed}
           label="Password"
           type="password"
           autoComplete="current-password"
@@ -98,20 +142,36 @@ const LoginForm = (props) => {
             sx={{ width: "16rem" }}
             required
             id="confirmPass"
+            name="confirmPass"
+            value={data.confirmPass}
+            onChange={changed}
             label="Confirm Password"
             type="password"
             autoComplete="current-password"
           />
         )}
-        {!isLogin && <BasicDatePicker sx={{ width: "16rem" }} required />}
+        {!isLogin && (
+          <BasicDatePicker
+            value={data.birthDay}
+            onChange={changed}
+            sx={{ width: "16rem" }}
+            required
+          />
+        )}
         {!isLogin && (
           <div className="w-full ml-.5">
-            <FormControlLabel required control={<Checkbox />} label="Accept" />
+            <FormControlLabel
+              required
+              onChange={check}
+              control={<Checkbox checked={data.check} />}
+              label="Accept Terms and Conditions"
+            />
           </div>
         )}
         <Button
           sx={{ width: "16rem", textTransform: "none" }}
           variant="contained"
+          type="submit"
         >
           {isLogin ? "Login" : "Register"}
         </Button>
@@ -125,7 +185,7 @@ const LoginForm = (props) => {
             Already have an account? <Link to="/login">Login page</Link>
           </p>
         )}
-      </div>
+      </form>
     </div>
   );
 };
