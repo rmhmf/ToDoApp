@@ -17,10 +17,8 @@ const Footer = () => {
         setInfo(res.data);
         setIsLoading(false);
       } catch (err) {
-        {
-          setIsLoading(false);
-          setError(err);
-        }
+        setIsLoading(false);
+        setError("Can't load");
       }
     };
     fetchData();

@@ -16,9 +16,12 @@ const LoginForm = (props) => {
   const [data, setData] = useState({
     email: "",
     password: "",
-    check: true,
+    check: false,
     confirmPass: "",
     birthDay: "",
+    emailErr: false,
+    passErr: false,
+    confirmPassErr: false,
   });
 
   const GoogleIcon = () => {
@@ -32,11 +35,40 @@ const LoginForm = (props) => {
     );
   };
 
+  function checkEmail(email) {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(data.email);
+  }
+
   function changed(event) {
     const { name, value } = event.target;
+    const updatedPass = name === "password" ? value : data.password;
+    const updatedEmail = name === "email" ? value : data.email;
+    const updatedConfPass = name === "confirmPass" ? value : data.confirmPass;
+
     setData({
       ...data,
       [name]: value,
+      passErr: updatedPass.length > 5 ? false : data.passErr,
+      emailErr: checkEmail(updatedEmail) ? false : data.emailErr,
+      confirmPassErr:
+        data.password && updatedConfPass && data.password !== updatedConfPass
+          ? true
+          : false,
+    });
+  }
+
+  function emailCurserOut() {
+    setData({
+      ...data,
+      emailErr: !data.email || checkEmail(data.email) ? false : true,
+    });
+  }
+
+  function passCurserOut() {
+    setData({
+      ...data,
+      passErr: !data.password || data.password.length > 5 ? false : true,
     });
   }
 
@@ -55,6 +87,7 @@ const LoginForm = (props) => {
         password: data.password,
         birthDay: data.birthDay,
       });
+      console.log(result);
     }
   }
 
@@ -121,8 +154,11 @@ const LoginForm = (props) => {
           required
           id="email"
           name="email"
+          type="email"
+          error={data.emailErr}
           value={data.email}
           onChange={changed}
+          onBlur={emailCurserOut}
           label="Email"
           variant="outlined"
         />
@@ -132,7 +168,9 @@ const LoginForm = (props) => {
           id="pass"
           name="password"
           value={data.password}
+          error={data.passErr}
           onChange={changed}
+          onBlur={passCurserOut}
           label="Password"
           type="password"
           autoComplete="current-password"
@@ -144,6 +182,7 @@ const LoginForm = (props) => {
             id="confirmPass"
             name="confirmPass"
             value={data.confirmPass}
+            error={data.confirmPassErr}
             onChange={changed}
             label="Confirm Password"
             type="password"
