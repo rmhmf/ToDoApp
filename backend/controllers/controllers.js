@@ -1,54 +1,13 @@
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-
-import passport from "passport";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
-
-import pg from "pg";
 import bcrypt from "bcrypt";
-import env from "dotenv";
+import db from "../services/db.js";
 
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-env.config();
-
-const app = express();
-const port = process.env.PORT;
-
-const db = new pg.Client({
-  user: process.env.DBUSER,
-  host: process.env.DBHOST,
-  database: process.env.DBNAME,
-  password: process.env.DBPASS,
-  port: process.env.DBPORT,
-});
-
-db.connect();
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
-app.use(express.json());
-app.use(cookieParser());
-
-app.use(passport.initialize());
-
-app.get("/footer", (req, res) => {
+const footer = (req, res) => {
   const footerText = "Designed by Reza";
   res.json({ text: footerText });
-});
+};
 
-app.post("/register", async (req, res) => {
+const register = async (req, res) => {
   console.log(req.body);
   const { email, password, birthDate } = req.body;
 
@@ -74,9 +33,9 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Something went wrong!" });
   }
-});
+};
 
-app.post("/login", async (req, res) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const result = await db.query("SELECT * FROM users WHERE email=$1", [
@@ -107,41 +66,11 @@ app.post("/login", async (req, res) => {
     console.log(err.stack);
     res.status(500).json({ error: "Oops, something went wrong!" });
   }
-});
+};
 
-app.get(
-  "/user",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    console.log("in /user");
-    res.status(200).json({ message: "You have logged in successfully" });
-  }
-);
+const user = (req, res) => {
+  console.log("in /user");
+  res.status(200).json({ message: "You have logged in successfully" });
+};
 
-passport.use(
-  "jwt",
-  new JwtStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (req) => req.cookies[process.env.COOKIE_NAME],
-      ]),
-      secretOrKey: process.env.SECRETKEY,
-    },
-    (jwtPayload, done) => {
-      try {
-        console.log(jwtPayload);
-        if (jwtPayload) {
-          done(null, jwtPayload);
-        } else {
-          done(null, false);
-        }
-      } catch (err) {
-        done(err, false);
-      }
-    }
-  )
-);
-
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
+export { footer, register, login, user };
