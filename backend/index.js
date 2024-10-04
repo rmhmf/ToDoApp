@@ -54,7 +54,9 @@ app.post("/register", async (req, res) => {
     ]);
     const item = result.rows;
     if (item.length == 1) {
-      res.status(400).json({ error: "The user already exists!" });
+      res
+        .status(400)
+        .json({ error: "The user already exists! Please log in." });
     } else {
       const hashPass = await bcrypt.hash(password, saltRound);
       const result = await db.query(
@@ -64,7 +66,34 @@ app.post("/register", async (req, res) => {
       res.sendStatus(200);
     }
   } catch (err) {
-    res.status(500).json({ error: err });
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const result = await db.query("SELECT * FROM users WHERE email=$1", [
+      email,
+    ]);
+    if (result.rows.length === 0) {
+      res.status(400).json({ error: "Email address or password is wrong." });
+    } else {
+      const rightPass = await bcrypt.compare(password, result.rows[0].password);
+      if (rightPass) {
+        const userDB = result.rows[0];
+        const payload = { id: userDB.id, email: userDB.email };
+        const token = jwt.sign(payload, process.env.SECRETKEY, {
+          expiresIn: ".5h",
+        });
+        res.status(200).json({ token });
+      } else {
+        res.status(400).json({ error: "Email address or password is wrong." });
+      }
+    }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: "Oops, something went wrong!" });
   }
 });
 

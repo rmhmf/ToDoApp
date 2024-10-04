@@ -21,6 +21,7 @@ const Form = (props) => {
     emailErr: false,
     passErr: false,
     confirmPassErr: false,
+    serverError: "",
   });
 
   function checkEmail(email) {
@@ -70,20 +71,48 @@ const Form = (props) => {
   async function submit(event) {
     event.preventDefault();
     if (!isLogin) {
-      const result = await axios.post("http://localhost:3001/register", {
-        email: data.email,
-        password: data.password,
-        birthDay: data.birthDay,
-      });
-      console.log(result);
+      try {
+        const result = await axios.post("http://localhost:3001/register", {
+          email: data.email,
+          password: data.password,
+          birthDay: data.birthDay,
+        });
+        console.log(result);
+      } catch (err) {
+        setData({
+          ...data,
+          serverError: err.response.data.error,
+        });
+      }
+    } else {
+      try {
+        const result = await axios.post("http://localhost:3001/login", {
+          email: data.email,
+          password: data.password,
+        });
+        const token = result.data.token;
+      } catch (err) {
+        setData({
+          ...data,
+          serverError: err.response.data.error,
+        });
+      }
     }
   }
 
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col justify-center items-left space-y-2"
+      className="flex flex-col justify-center items-left space-y-3"
     >
+      <p className="text-red-500 text-sm">
+        {data.passErr
+          ? "Password is too short"
+          : data.confirmPassErr
+          ? "Password not match"
+          : ""}
+      </p>
+      <p className="text-red-500 text-sm">{data.serverError}</p>
       <TextField
         sx={{ width: "16rem" }}
         required
@@ -128,7 +157,7 @@ const Form = (props) => {
         <BasicDatePicker
           value={data.birthDay}
           onChange={changed}
-          sx={{ width: "16rem" }}
+          sx={{ width: "14rem" }}
           required
         />
       )}
