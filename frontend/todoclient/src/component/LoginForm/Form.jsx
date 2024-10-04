@@ -5,7 +5,7 @@ import BasicDatePicker from "../BasicDatePicker";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../axiosConfig";
 
 const Form = (props) => {
   const { type } = props;
@@ -72,12 +72,11 @@ const Form = (props) => {
     event.preventDefault();
     if (!isLogin) {
       try {
-        const result = await axios.post("http://localhost:3001/register", {
+        await axiosInstance.post("/register", {
           email: data.email,
           password: data.password,
           birthDay: data.birthDay,
         });
-        console.log(result);
       } catch (err) {
         setData({
           ...data,
@@ -86,11 +85,13 @@ const Form = (props) => {
       }
     } else {
       try {
-        const result = await axios.post("http://localhost:3001/login", {
+        const result = await axiosInstance.post("/login", {
           email: data.email,
           password: data.password,
         });
-        const token = result.data.token;
+        console.log("result:", result);
+        const newReq = await axiosInstance.get("/user");
+        console.log("newReq", newReq);
       } catch (err) {
         setData({
           ...data,

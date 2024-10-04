@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 
 import pg from "pg";
 import bcrypt from "bcrypt";
@@ -31,13 +32,18 @@ const db = new pg.Client({
 db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(passport.initialize());
 
 app.get("/footer", (req, res) => {
-  console.log(req.body);
   const footerText = "Designed by Reza";
   res.json({ text: footerText });
 });
@@ -84,9 +90,15 @@ app.post("/login", async (req, res) => {
         const userDB = result.rows[0];
         const payload = { id: userDB.id, email: userDB.email };
         const token = jwt.sign(payload, process.env.SECRETKEY, {
-          expiresIn: ".5h",
+          expiresIn: "1h",
         });
-        res.status(200).json({ token });
+        res.cookie(process.env.COOKIE_NAME, token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Strict", // CSRF protection
+          maxAge: 3 * 60 * 1000,
+        });
+        res.status(200).json({ message: "Logged in successfully." });
       } else {
         res.status(400).json({ error: "Email address or password is wrong." });
       }
@@ -96,6 +108,39 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Oops, something went wrong!" });
   }
 });
+
+app.get(
+  "/user",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    console.log("in /user");
+    res.status(200).json({ message: "You have logged in successfully" });
+  }
+);
+
+passport.use(
+  "jwt",
+  new JwtStrategy(
+    {
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req) => req.cookies[process.env.COOKIE_NAME],
+      ]),
+      secretOrKey: process.env.SECRETKEY,
+    },
+    (jwtPayload, done) => {
+      try {
+        console.log(jwtPayload);
+        if (jwtPayload) {
+          done(null, jwtPayload);
+        } else {
+          done(null, false);
+        }
+      } catch (err) {
+        done(err, false);
+      }
+    }
+  )
+);
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);

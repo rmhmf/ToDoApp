@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import LinkBar from "../LinkBar";
-import axios from "axios";
+import axiosInstance from "../../axiosConfig";
 
 const Footer = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [info, setInfo] = useState({});
+  const [info, setInfo] = useState({ text: "" });
   const [error, setError] = useState(false);
 
   const year = new Date().getFullYear();
@@ -13,8 +13,9 @@ const Footer = () => {
     const fetchData = async () => {
       console.log("here");
       try {
-        const res = await axios.get("http://localhost:3001/footer");
-        setInfo(res.data);
+        const res = await axiosInstance.get("/footer");
+        console.log(res);
+        setInfo({ text: res.data.text });
         setIsLoading(false);
       } catch (err) {
         setIsLoading(false);
