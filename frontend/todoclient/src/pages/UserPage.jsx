@@ -4,7 +4,7 @@ import axiosInstance from "../axiosConfig";
 import Header from "../component/Header";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
-import { Grid2 } from "@mui/material";
+import { Drawer, Grid2 } from "@mui/material";
 import CardItem from "../component/CardItem";
 import DialogForm from "../component/DialogForm";
 
@@ -42,10 +42,11 @@ function UserPage() {
   return (
     <div>
       <Header page="user" email={data.email} />
+
       <div className="flex flex-col sm:flex-row sm:h-screen">
-        <div className="bg-pink-300 sm:w-1/6">
-          <p>list</p>
-        </div>
+        <Drawer variant="permanent" open={false}>
+          <p>listfdfadsfad</p>
+        </Drawer>
 
         <div className="bg-green-300 sm:w-5/6 p-4">
           <Grid2 container spacing={3}>
@@ -64,7 +65,7 @@ function UserPage() {
             ))}
           </Grid2>
           <Fab
-            className="fixed bottom-5 right-5"
+            sx={{ position: "fixed", bottom: 32, right: 32 }}
             color="primary"
             aria-label="add"
             onClick={addClicked}
