@@ -55,7 +55,7 @@ const login = async (req, res) => {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "Strict", // CSRF protection
-          maxAge: 3 * 60 * 1000,
+          maxAge: 30 * 60 * 1000,
         });
         res.status(200).json({ message: "Logged in successfully." });
       } else {
@@ -68,9 +68,53 @@ const login = async (req, res) => {
   }
 };
 
-const user = (req, res) => {
-  console.log("in /user");
-  res.status(200).json({ message: "You have logged in successfully" });
+const getAllTasks = async (req, res) => {
+  const user = req.user;
+  try {
+    const result = await db.query("SELECT * FROM tasks WHERE userid = $1", [
+      user.id,
+    ]);
+    res.status(200).json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "something went wrong" });
+  }
 };
 
-export { footer, register, login, user };
+const verify = (req, res) => {
+  try {
+    const token = req.cookies[process.env.COOKIE_NAME];
+    const user = jwt.verify(token, process.env.SECRETKEY);
+    if (user) {
+      res.status(200).json({ message: "verified." });
+    } else {
+      res.status(400).json({ message: "Not verified." });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Error in server. Not verified." });
+  }
+};
+
+const logout = (req, res) => {
+  try {
+    res.clearCookie(process.env.COOKIE_NAME);
+    res.status(200).json({ message: "logged out successfully." });
+  } catch (err) {
+    res.status(500).json({ message: "can't logout." });
+  }
+};
+
+const addTask = async (req, res) => {
+  const user = req.user;
+  const task = req.body;
+  try {
+    const result = await db.query(
+      "INSERT INTO tasks(title, content, userid) VALUES ($1, $2, $3) RETURNING *",
+      [task.title, task.content, user.id]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "something is wrong" });
+  }
+};
+
+export { footer, register, login, getAllTasks, verify, logout, addTask };

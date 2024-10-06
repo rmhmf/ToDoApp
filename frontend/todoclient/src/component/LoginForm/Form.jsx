@@ -4,11 +4,12 @@ import Button from "@mui/material/Button";
 import BasicDatePicker from "../BasicDatePicker";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosConfig";
 
 const Form = (props) => {
   const { type } = props;
+  const navigate = useNavigate();
 
   const isLogin = type === "login";
 
@@ -85,13 +86,11 @@ const Form = (props) => {
       }
     } else {
       try {
-        const result = await axiosInstance.post("/login", {
+        await axiosInstance.post("/login", {
           email: data.email,
           password: data.password,
         });
-        console.log("result:", result);
-        const newReq = await axiosInstance.get("/user");
-        console.log("newReq", newReq);
+        navigate("/user");
       } catch (err) {
         setData({
           ...data,
@@ -104,7 +103,7 @@ const Form = (props) => {
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col justify-center items-left space-y-3"
+      className="flex flex-col justify-center items-left space-y-1"
     >
       <p className="text-red-500 text-sm">
         {data.passErr

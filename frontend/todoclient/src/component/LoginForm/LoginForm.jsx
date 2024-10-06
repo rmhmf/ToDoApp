@@ -1,6 +1,8 @@
 import React from "react";
 import Form from "./Form";
 import OAuth from "./OAuthForm";
+import Divider from "@mui/material/Divider";
+import Chip from "@mui/material/Chip";
 
 const LoginForm = (props) => {
   const { type } = props;
@@ -16,11 +18,9 @@ const LoginForm = (props) => {
 
       <OAuth />
 
-      <div className="flex items-center my-2 color-gray-500">
-        <hr className="flex-1 border-black" />
-        <span className="px-2"> OR </span>
-        <hr className="flex-1 border-black" />
-      </div>
+      <Divider>
+        <Chip label="Or" size="small" />
+      </Divider>
 
       <Form type={props.type} />
     </div>
