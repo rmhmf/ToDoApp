@@ -15,7 +15,6 @@ const passJwt = (passport) => {
       },
       (jwtPayload, done) => {
         try {
-          console.log(jwtPayload);
           if (jwtPayload) {
             done(null, jwtPayload);
           } else {

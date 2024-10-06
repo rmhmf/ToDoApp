@@ -10,23 +10,41 @@ import {
 import axiosInstance from "../../axiosConfig";
 
 function DialogForm(props) {
-  const { open, setOpen, setTasks } = props;
-  const [newTask, setNewTask] = useState({ title: "", content: "" });
+  const { open, setOpen, setTasks, newTask, setNewTask } = props;
 
   function handleClose() {
-    setNewTask({ title: "", content: "" });
+    setNewTask((newTask) => ({ ...newTask, title: "", content: "" }));
     setOpen(false);
   }
 
   async function handleAdd() {
     try {
-      const result = await axiosInstance.post("/add/task", newTask);
-      setTasks((tasks) => [
-        ...tasks,
-        { title: newTask.title, content: newTask.content },
-      ]);
+      if (newTask.addMode) {
+        const result = await axiosInstance.post("/add/task", newTask);
+        setTasks((tasks) => [...tasks, result.data]);
+      } else {
+        const result = await axiosInstance.put(`/update/task/${newTask.id}`, {
+          title: newTask.title,
+          content: newTask.content,
+        });
+        const updatedTask = result.data;
+        setTasks((tasks) => {
+          return tasks.map((task) => {
+            if (task.id === updatedTask.id) {
+              return {
+                ...task,
+                title: updatedTask.title,
+                content: updatedTask.content,
+              };
+            } else {
+              return task;
+            }
+          });
+        });
+      }
+
       setOpen(false);
-      setNewTask({ title: "", content: "" });
+      setNewTask((newTask) => ({ ...newTask, title: "", content: "" }));
     } catch (err) {
       console.log(err);
     }
@@ -67,7 +85,9 @@ function DialogForm(props) {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>close</Button>
-        <Button onClick={handleAdd}>Add</Button>
+        <Button onClick={handleAdd}>
+          {newTask.addMode ? "Add" : "Update"}
+        </Button>
       </DialogActions>
     </Dialog>
   );

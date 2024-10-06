@@ -13,6 +13,11 @@ function UserPage() {
   const [data, setData] = useState({ message: "" });
   const [open, setOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState({
+    title: "",
+    content: "",
+    addMode: true,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +34,9 @@ function UserPage() {
 
   function addClicked() {
     setOpen(true);
+    setNewTask((newTask) => {
+      return { ...newTask, addMode: true };
+    });
   }
 
   return (
@@ -42,8 +50,16 @@ function UserPage() {
         <div className="bg-green-300 sm:w-5/6 p-4">
           <Grid2 container spacing={3}>
             {tasks.map((task) => (
-              <Grid2 item xs={12} sm={6} md={4} lg={3}>
-                <CardItem title={task.title} content={task.content} />
+              <Grid2 key={task.id} item xs={12} sm={6} md={4} lg={3}>
+                <CardItem
+                  id={task.id}
+                  title={task.title}
+                  content={task.content}
+                  setTasks={setTasks}
+                  setOpen={setOpen}
+                  newTask={newTask}
+                  setNewTask={setNewTask}
+                />
               </Grid2>
             ))}
           </Grid2>
@@ -56,7 +72,13 @@ function UserPage() {
             <AddIcon />
           </Fab>
         </div>
-        <DialogForm open={open} setOpen={setOpen} setTasks={setTasks} />
+        <DialogForm
+          open={open}
+          setOpen={setOpen}
+          setTasks={setTasks}
+          newTask={newTask}
+          setNewTask={setNewTask}
+        />
       </div>
     </div>
   );

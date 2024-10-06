@@ -117,4 +117,44 @@ const addTask = async (req, res) => {
   }
 };
 
-export { footer, register, login, getAllTasks, verify, logout, addTask };
+const deleteTask = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const taskId = req.params.id;
+    const result = await db.query(
+      "DELETE FROM tasks WHERE id=$1 and userid=$2 RETURNING *",
+      [taskId, userId]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "something went wrong" });
+  }
+};
+
+const updateTask = async (req, res) => {
+  try {
+    const updatedTask = req.body;
+    const user = req.user;
+    const taskId = req.params.id;
+    const result = await db.query(
+      "UPDATE tasks SET title=$1, content=$2 WHERE id=$3 and userid=$4 RETURNING *",
+      [updatedTask.title, updatedTask.content, taskId, user.id]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "something went wrong" });
+    console.log(err);
+  }
+};
+
+export {
+  footer,
+  register,
+  login,
+  getAllTasks,
+  verify,
+  logout,
+  addTask,
+  deleteTask,
+  updateTask,
+};
