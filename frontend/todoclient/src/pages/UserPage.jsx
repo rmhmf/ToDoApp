@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosConfig";
-import Header from "../component/Header";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
-import { Drawer, Grid2 } from "@mui/material";
+import {
+  AppBar,
+  Drawer,
+  Grid2,
+  IconButton,
+  Toolbar,
+  useMediaQuery,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import CardItem from "../component/CardItem";
 import DialogForm from "../component/DialogForm";
 
@@ -18,6 +25,10 @@ function UserPage() {
     content: "",
     addMode: true,
   });
+
+  const isLarge = useMediaQuery("(min-width: 640px)");
+
+  const [isDrawer, setIsDrawer] = useState(isLarge);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,16 +50,47 @@ function UserPage() {
     });
   }
 
-  return (
-    <div>
-      <Header page="user" email={data.email} />
+  function toggleDrawer() {
+    console.log("here");
+    setIsDrawer(!isDrawer);
+  }
 
-      <div className="flex flex-col sm:flex-row sm:h-screen">
-        <Drawer variant="permanent" open={false}>
-          <p>listfdfadsfad</p>
+  return (
+    <div className="flex flex-col min-h-screen">
+      <AppBar position="sticky" className="h-16">
+        <Toolbar className="space-x-4">
+          <IconButton onClick={toggleDrawer}>
+            <MenuIcon />
+          </IconButton>
+          <p>Hello</p>
+          <p>World</p>
+        </Toolbar>
+      </AppBar>
+
+      <div className="flex flex-1">
+        <Drawer
+          variant={isLarge ? "persistent" : "temporary"}
+          open={isDrawer}
+          className={`transition-all duration-300 ease-in-out ${
+            isDrawer ? "w-48" : "w-0"
+          }`}
+          onClose={toggleDrawer}
+          PaperProps={{
+            className: "mt-16 pl-2 pt-2 bg-gray-200",
+            style: { backgroundColor: "#F9F9F9" },
+          }}
+        >
+          <ul className="w-48">
+            <li>Home</li>
+            <li>Today</li>
+            <li>Tomorrow</li>
+            <li>This Week</li>
+            <li>This Month</li>
+            <li>This Year</li>
+          </ul>
         </Drawer>
 
-        <div className="bg-green-300 sm:w-5/6 p-4">
+        <div className="flex-1 p-6">
           <Grid2 container spacing={3}>
             {tasks.map((task) => (
               <Grid2 key={task.id} item xs={12} sm={6} md={4} lg={3}>
