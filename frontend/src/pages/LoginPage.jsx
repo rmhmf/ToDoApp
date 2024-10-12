@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Container } from "@mui/material";
 import LoginForm from "../component/LoginForm";
 import axiosInstance from "../axiosConfig";
 
@@ -17,9 +18,12 @@ function LoginPage({ type }) {
   }, []);
 
   return (
-    <div className="flex justify-center items-center h-screen bg-amber-300">
+    <Container
+      maxWidth="full"
+      className="flex flex-col w-full justify-center items-center h-screen m-0"
+    >
       <LoginForm type={type} />
-    </div>
+    </Container>
   );
 }
 

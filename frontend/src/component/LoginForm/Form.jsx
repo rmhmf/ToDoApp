@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import BasicDatePicker from "../BasicDatePicker";
+import { TextField, Typography, Button } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { Link, useNavigate } from "react-router-dom";
@@ -103,18 +101,25 @@ const Form = (props) => {
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col justify-center items-left space-y-1"
+      className="flex flex-col justify-center items-left space-y-2 w-full"
     >
-      <p className="text-red-500 text-sm">
-        {data.passErr
-          ? "Password is too short"
-          : data.confirmPassErr
-          ? "Password not match"
-          : ""}
-      </p>
-      <p className="text-red-500 text-sm">{data.serverError}</p>
+      {(data.passErr || data.confirmPassErr) && (
+        <Typography className="text-red-500 text-sm">
+          {data.passErr
+            ? "Password is too short"
+            : data.confirmPassErr
+            ? "Password not match"
+            : null}
+        </Typography>
+      )}
+      {data.serverError && (
+        <Typography className="text-red-500 text-sm">
+          {data.serverError}
+        </Typography>
+      )}
       <TextField
-        sx={{ width: "16rem" }}
+        className="w-full"
+        size="small"
         required
         id="email"
         name="email"
@@ -127,7 +132,8 @@ const Form = (props) => {
         variant="outlined"
       />
       <TextField
-        sx={{ width: "16rem" }}
+        className="w-full"
+        size="small"
         required
         id="pass"
         name="password"
@@ -141,7 +147,8 @@ const Form = (props) => {
       />
       {!isLogin && (
         <TextField
-          sx={{ width: "16rem" }}
+          className="w-full"
+          size="small"
           required
           id="confirmPass"
           name="confirmPass"
@@ -153,26 +160,21 @@ const Form = (props) => {
           autoComplete="current-password"
         />
       )}
-      {!isLogin && (
-        <BasicDatePicker
-          value={data.birthDay}
-          onChange={changed}
-          sx={{ width: "14rem" }}
-          required
-        />
-      )}
+
       {!isLogin && (
         <div className="w-full ml-.5">
           <FormControlLabel
             required
             onChange={check}
             control={<Checkbox checked={data.check} />}
-            label="Accept Terms and Conditions"
+            label={<span className="text-sm">Accept Terms and Conditions</span>}
           />
         </div>
       )}
       <Button
-        sx={{ width: "16rem", textTransform: "none" }}
+        className="w-72"
+        size="small"
+        sx={{ textTransform: "none" }}
         variant="contained"
         type="submit"
       >

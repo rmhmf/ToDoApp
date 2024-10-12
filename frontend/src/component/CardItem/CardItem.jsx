@@ -5,11 +5,14 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import axiosInstance from "../../axiosConfig";
 
 function CardItem(props) {
-  const { id, title, content, setTasks, setOpen, newTask, setNewTask } = props;
+  const { id, title, content, setTasks, setOpen, newTask, setNewTask, isDone } =
+    props;
+
+  const [done, setDone] = useState(isDone);
 
   async function handleDelete() {
     try {
@@ -21,6 +24,17 @@ function CardItem(props) {
     }
   }
 
+  async function handleIsDone() {
+    try {
+      const result = await axiosInstance.put(`/update/task/${id}`, {
+        title: title,
+        content: content,
+        is_done: !done,
+      });
+      setDone(result.data.is_done);
+    } catch (err) {}
+  }
+
   function handleEdit() {
     setNewTask({ id: id, title: title, content: content, addMode: false });
     setOpen(true);
@@ -29,7 +43,13 @@ function CardItem(props) {
   return (
     <Card className="shadow-lg">
       <CardContent>
-        <Typography variant="h5">{title}</Typography>
+        <Typography
+          onClick={handleIsDone}
+          variant="h5"
+          className={`cursor-pointer ${done ? "line-through" : null}`}
+        >
+          {title}
+        </Typography>
         <Typography variant="body2">{content}</Typography>
       </CardContent>
       <CardActions>

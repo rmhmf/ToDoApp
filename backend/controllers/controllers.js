@@ -137,8 +137,14 @@ const updateTask = async (req, res) => {
     const user = req.user;
     const taskId = req.params.id;
     const result = await db.query(
-      "UPDATE tasks SET title=$1, content=$2 WHERE id=$3 and userid=$4 RETURNING *",
-      [updatedTask.title, updatedTask.content, taskId, user.id]
+      "UPDATE tasks SET title=$1, content=$2, is_done=$3 WHERE id=$4 and userid=$5 RETURNING *",
+      [
+        updatedTask.title,
+        updatedTask.content,
+        updatedTask.is_done,
+        taskId,
+        user.id,
+      ]
     );
     res.status(200).json(result.rows[0]);
   } catch (err) {

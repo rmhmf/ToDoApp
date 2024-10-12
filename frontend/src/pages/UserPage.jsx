@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosConfig";
-import Fab from "@mui/material/Fab";
-import AddIcon from "@mui/icons-material/Add";
 import {
   AppBar,
   Drawer,
-  Grid2,
   IconButton,
   Toolbar,
   useMediaQuery,
+  List,
+  ListSubheader,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import CardItem from "../component/CardItem";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import HomeIcon from "@mui/icons-material/Home";
+import SettingsIcon from "@mui/icons-material/Settings";
 import DialogForm from "../component/DialogForm";
+import Tasks from "../component/Tasks";
+import CalendarPage from "../component/CalendarPage";
+import BarChartIcon from "@mui/icons-material/BarChart";
 
 function UserPage() {
   const navigate = useNavigate();
-  const [data, setData] = useState({ message: "" });
   const [open, setOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [page, setPage] = useState("/Homepage");
   const [newTask, setNewTask] = useState({
     title: "",
     content: "",
@@ -43,27 +51,54 @@ function UserPage() {
     fetchData();
   }, []);
 
-  function addClicked() {
-    setOpen(true);
-    setNewTask((newTask) => {
-      return { ...newTask, addMode: true };
-    });
-  }
-
   function toggleDrawer() {
     console.log("here");
     setIsDrawer(!isDrawer);
   }
 
+  const listItems = [
+    {
+      icon: <HomeIcon />,
+      text: "Homepage",
+    },
+    {
+      icon: <CalendarMonthIcon />,
+      text: "Calendar",
+    },
+    {
+      icon: <BarChartIcon />,
+      text: "Analysis",
+    },
+    {
+      icon: <SettingsIcon />,
+      text: "Setting",
+    },
+  ];
+
+  function selectedContent() {
+    switch (page) {
+      case "/Homepage":
+        return (
+          <Tasks
+            setOpen={setOpen}
+            setNewTask={setNewTask}
+            tasks={tasks}
+            setTasks={setTasks}
+            newTask={newTask}
+          />
+        );
+      case "/Calendar":
+        return <CalendarPage />;
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <AppBar position="sticky" className="h-16">
-        <Toolbar className="space-x-4">
+        <Toolbar className="space-x-4" sx={{ backgroundColor: "#FF921C" }}>
           <IconButton onClick={toggleDrawer}>
-            <MenuIcon />
+            {isDrawer ? <MenuOpenIcon /> : <MenuIcon />}
           </IconButton>
-          <p>Hello</p>
-          <p>World</p>
         </Toolbar>
       </AppBar>
 
@@ -76,45 +111,26 @@ function UserPage() {
           }`}
           onClose={toggleDrawer}
           PaperProps={{
-            className: "mt-16 pl-2 pt-2 bg-gray-200",
+            className: "mt-16 bg-gray-200",
             style: { backgroundColor: "#F9F9F9" },
           }}
         >
-          <ul className="w-48">
-            <li>Home</li>
-            <li>Today</li>
-            <li>Tomorrow</li>
-            <li>This Week</li>
-            <li>This Month</li>
-            <li>This Year</li>
-          </ul>
+          <List
+            className="w-48 bg-gray-100"
+            component="nav"
+            // subheader={<ListSubheader>Items</ListSubheader>}
+          >
+            {listItems.map((item) => (
+              <ListItemButton onClick={() => setPage(`/${item.text}`)}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            ))}
+          </List>
         </Drawer>
 
-        <div className="flex-1 p-6">
-          <Grid2 container spacing={3}>
-            {tasks.map((task) => (
-              <Grid2 key={task.id} item xs={12} sm={6} md={4} lg={3}>
-                <CardItem
-                  id={task.id}
-                  title={task.title}
-                  content={task.content}
-                  setTasks={setTasks}
-                  setOpen={setOpen}
-                  newTask={newTask}
-                  setNewTask={setNewTask}
-                />
-              </Grid2>
-            ))}
-          </Grid2>
-          <Fab
-            sx={{ position: "fixed", bottom: 32, right: 32 }}
-            color="primary"
-            aria-label="add"
-            onClick={addClicked}
-          >
-            <AddIcon />
-          </Fab>
-        </div>
+        {selectedContent()}
+
         <DialogForm
           open={open}
           setOpen={setOpen}
