@@ -11,7 +11,7 @@ const register = async (req, res) => {
   console.log(req.body);
   const { email, password, birthDate } = req.body;
 
-  const saltRound = parseInt(process.env.SALTROUND);
+  const SALT_ROUND = parseInt(process.env.SALT_ROUND);
 
   try {
     const result = await db.query("SELECT * FROM users WHERE email=$1", [
@@ -23,7 +23,7 @@ const register = async (req, res) => {
         .status(400)
         .json({ error: "The user already exists! Please log in." });
     } else {
-      const hashPass = await bcrypt.hash(password, saltRound);
+      const hashPass = await bcrypt.hash(password, SALT_ROUND);
       const result = await db.query(
         "INSERT INTO users(email, password, birthday) VALUES($1, $2, $3)",
         [email, hashPass, birthDate]
@@ -48,7 +48,7 @@ const login = async (req, res) => {
       if (rightPass) {
         const userDB = result.rows[0];
         const payload = { id: userDB.id, email: userDB.email };
-        const token = jwt.sign(payload, process.env.SECRETKEY, {
+        const token = jwt.sign(payload, process.env.SECRET_KEY, {
           expiresIn: "1h",
         });
         res.cookie(process.env.COOKIE_NAME, token, {
@@ -83,7 +83,7 @@ const getAllTasks = async (req, res) => {
 const verify = (req, res) => {
   try {
     const token = req.cookies[process.env.COOKIE_NAME];
-    const user = jwt.verify(token, process.env.SECRETKEY);
+    const user = jwt.verify(token, process.env.SECRET_KEY);
     if (user) {
       res.status(200).json({ message: "verified." });
     } else {
