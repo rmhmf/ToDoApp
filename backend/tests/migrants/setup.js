@@ -1,6 +1,5 @@
 import db from "../../services/db";
 import bcrypt from "bcrypt";
-import env from "dotenv";
 
 async function createTableTasks() {
   try {
@@ -49,11 +48,8 @@ async function addUsers() {
 }
 
 async function setup() {
-  console.log("create users");
   await createTableUsers();
-  console.log("create tasks");
   await createTableTasks();
-  console.log("add users");
   await addUsers();
 }
 
