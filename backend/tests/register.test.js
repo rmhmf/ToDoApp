@@ -34,4 +34,15 @@ describe("Test Post /register", () => {
     expect(res.status).toBe(400);
     expect(res.body.error).toBe("The user already exists! Please log in.");
   });
+
+  it("Should prevent short passwords >= 6", async () => {
+    const res = await request(app).post("/api/register").send({
+      email: "test@test.com",
+      password: "12345",
+      birthDate: null,
+    });
+    console.log("here", res.body);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Password is too short!");
+  });
 });
