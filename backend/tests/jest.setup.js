@@ -2,9 +2,7 @@ import setup from "./migrants/setUp";
 import dropTables from "./migrants/drop";
 import db from "../services/db";
 
-beforeAll(async () => {
-  await dropTables();
-});
+beforeAll(async () => {});
 
 beforeEach(async () => {
   await setup();

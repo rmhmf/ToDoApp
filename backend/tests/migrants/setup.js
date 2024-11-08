@@ -5,7 +5,7 @@ import env from "dotenv";
 async function createTableTasks() {
   try {
     await db.query(`CREATE TABLE tasks( 
-        id SERIAL PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
 	    title TEXT NOT NULL,
 	    content TEXT NOT NULL,
 	    date DATE,
@@ -19,10 +19,10 @@ async function createTableTasks() {
 async function createTableUsers() {
   try {
     await db.query(`CREATE TABLE users(
-        id SERIAL PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        birthday DATE
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      birthday DATE
     );`);
   } catch (err) {
     console.log("Error happened in creating table users", err);
@@ -35,6 +35,7 @@ async function addUsers() {
   try {
     const pass1 = await bcrypt.hash("654321", SALT_ROUND);
     const pass2 = await bcrypt.hash("123456", SALT_ROUND);
+    const result = await db.query("SELECT * FROM users");
     await db.query(
       `INSERT INTO users(email, password) 
         VALUES
@@ -48,8 +49,11 @@ async function addUsers() {
 }
 
 async function setup() {
+  console.log("create users");
   await createTableUsers();
+  console.log("create tasks");
   await createTableTasks();
+  console.log("add users");
   await addUsers();
 }
 

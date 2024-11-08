@@ -8,7 +8,6 @@ const footer = (req, res) => {
 };
 
 const register = async (req, res) => {
-  console.log(req.body);
   const { email, password, birthDate } = req.body;
 
   const SALT_ROUND = parseInt(process.env.SALT_ROUND);
@@ -25,12 +24,13 @@ const register = async (req, res) => {
     } else {
       const hashPass = await bcrypt.hash(password, SALT_ROUND);
       const result = await db.query(
-        "INSERT INTO users(email, password, birthday) VALUES($1, $2, $3)",
+        "INSERT INTO users(email, password, birthday) VALUES($1, $2, $3) Returning id, email",
         [email, hashPass, birthDate]
       );
-      res.sendStatus(200);
+      res.status(200).json(result.rows[0]);
     }
   } catch (err) {
+    console.log("error", err);
     res.status(500).json({ error: "Something went wrong!" });
   }
 };
