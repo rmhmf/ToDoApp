@@ -22,12 +22,16 @@ const register = async (req, res) => {
         .status(400)
         .json({ error: "The user already exists! Please log in." });
     } else {
-      const hashPass = await bcrypt.hash(password, SALT_ROUND);
-      const result = await db.query(
-        "INSERT INTO users(email, password, birthday) VALUES($1, $2, $3) Returning id, email",
-        [email, hashPass, birthDate]
-      );
-      res.status(200).json(result.rows[0]);
+      if (password.length < 6) {
+        res.status(400).send({ error: "Password is too short!" });
+      } else {
+        const hashPass = await bcrypt.hash(password, SALT_ROUND);
+        const result = await db.query(
+          "INSERT INTO users(email, password, birthday) VALUES($1, $2, $3) Returning id, email",
+          [email, hashPass, birthDate]
+        );
+        res.status(200).json(result.rows[0]);
+      }
     }
   } catch (err) {
     console.log("error", err);
